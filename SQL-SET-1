@@ -1,0 +1,316 @@
+###############SQL-set1####################
+##Sample Dataset-1
+
+create table city(
+  id int,
+  name varchar(17),
+  countrycode varchar(2),
+  district varchar(20),
+  population int
+  );
+  
+insert into city values(6,"Rotterdam","NLD","Zuid-Holland",593321);
+insert into city values(3878,"Scottsdale","USA","Arizona",202705);
+insert into city values(3965,"Corona","USA","California",124966);
+insert into city values(3973,"Concord","USA","California",121780);
+insert into city values(3977,"Cedar Rapids","USA","ZIowa",120758);
+insert into city values(3982,"Coral Springs","USA","Florida",117549);
+insert into city values(4054,"Fairfield","USA","California",92256);
+insert into city values(4058,"Boulder","USA","Colorado",91238);
+insert into city values(4061,"Rotterdam","NLD","Massachusetts",90555);
+
+-------------------------------------------------------------------------------------------------
+Q1. Query all columns for all American cities in the CITY table with populations larger than 100000.The CountryCode for America is USA.
+ans)select * from city where population > 100000 and countrycode = "USA";
+
+Q2. Query the NAME field for all American cities in the CITY table with populations larger than 120000.The CountryCode for America is USA.
+ans)select name from city where population > 120000;
+
+Q3. Query all columns (attributes) for every row in the CITY table
+ans)select * from city;
+
+Q4. Query all columns for a city in CITY with the ID 1661
+ans)select * from city where id = 1661; SQL query successfully executed. However, the result set is empty.
+
+Q5. Query all attributes of every Japanese city in the CITY table. The COUNTRYCODE for Japan isJPN.
+ans)select * from city where countrycode = JPN;
+
+Q6. Query the names of all the Japanese cities in the CITY table. The COUNTRYCODE for Japan is JPN.
+ans)select district from city where countrycode = JPN;
+----------------------------------------------------------------------------------------------------
+##Sample Dataset-2
+
+create table station(
+  id int,
+  city varchar(21),
+  state varchar(2),
+  LAT_N int,
+  LONG_W int
+  );
+  
+insert into station values(794,'Kissee Mills','MO',139,73);
+insert into station values(824,'Loma Mar','CA',48,130);
+insert into station values(603,'Sandy Hook','CT',72,148);
+insert into station values(478,'Tipton','IN',33,97);
+insert into station values(619,'Arlington','CO',75,92);
+insert into station values(711,'Turner','AR',50,101);
+insert into station values(839,'Slidell','LA',85,151);
+insert into station values(411,'Negreet','LA',98,105);
+insert into station values(588,'Glencoe','KY',46,136);
+insert into station values(665,'Chelsea','IA',98,59);
+insert into station values(342,'Chignik Lagoon','AK',103,153);
+insert into station values(733,'Pelahatchie','MS',38,28);
+insert into station values(441,'Hanna','City IL',50,136);
+insert into station values(811,'Dorrance','KS',102,121);
+insert into station values(698,'Albany','CA',49,80);
+insert into station values(325,'Monument','KS',70,141);
+insert into station values(414,'Manchester','MD',73,37);
+insert into station values(113,'Prescott','IA',39,65);
+insert into station values(971,'Graettinger','IA',94,150);
+insert into station values(266,'Cahone','CO',116,127);
+insert into station values(266,'Umerga','IND',116,127);
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q7. Query a list of CITY and STATE from the STATION table.
+ans) select city,state from station;
+
+Q8. Query a list of CITY names from STATION for cities that have an even ID number. Print the results in any order, but exclude duplicates from the answer.
+ans) select distinct city as even_cities from station where id % 2 = 0;
+
+Q9. Find the difference between the total number of CITY entries in the table and the number of distinct CITY entries in the table.
+ans) select (select count(city) from station) - (select count(distinct(city)) from station) as difference;
+
+Q10. Query the two cities in STATION with the shortest and longest CITY names, as well as their respective lengths (i.e.: number of characters in the name). If there is more than one smallest or
+largest city, choose the one that comes first when ordered alphabetically.
+ans) select city,length(city) as len from station order by len,city limit 1;
+select city,length(city) as len from station order by len desc,city limit 1;
+
+Q11. Query the list of CITY names starting with vowels (i.e., a, e, i, o, or u) from STATION. Your result cannot contain duplicates.
+ans)select distinct(city) from station where lower(substr(city,1,1)) in ('a','e','i','o','u') ;
+SELECT CITY FROM STATION where SUBSTR(CITY,1,1) IN('A','E','I','O','U');
+SELECT DISTINCT CITY FROM STATION WHERE CITY LIKE 'A%' OR CITY LIKE 'E%' OR CITY LIKE 'I%' OR CITY LIKE 'O%' OR CITY LIKE 'U%';
+
+Q12. Query the list of CITY names ending with vowels (a, e, i, o, u) from STATION. Your result cannot contain duplicates.
+ans)select city from station where city like '%A' or city like '%E' or city like '%I' or city like '%O' or city like '%U' ;
+select city from station where lower(substr(city,length(city),length(city))) in ('a','e','i','o','u') ;
+
+Q13. Query the list of CITY names from STATION that do not start with vowels. Your result cannot contain duplicates.
+ans)select distinct city from station where lower(substr(city,1,1)) not in ('a','e','i','o','u') ;
+
+Q14. Query the list of CITY names from STATION that do not end with vowels. Your result cannot contain duplicates.
+ans)select distinct city from station where lower(substr(city,length(city),length(city))) not in ('a','e','i','o','u') ;
+
+Q15. Query the list of CITY names from STATION that either do not start with vowels or do not end with vowels. Your result cannot contain duplicates.
+ans)select distinct city from station where lower(substr(city,1,1)) not in ('a','e','i','o','u') and lower(substr(city,length(city),length(city))) not in ('a','e','i','o','u') ;
+
+Q16. Query the list of CITY names from STATION that do not start with vowels and do not end with vowels. Your result cannot contain duplicates.
+ans)SELECT DISTINCT CITY FROM STATION WHERE LOWER(SUBSTR(CITY,1,1)) NOT IN ('a','e','i','o','u') AND LOWER(SUBSTR(CITY,LENGTH(CITY),1)) NOT IN ('a','e','i','o','u'); 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q17.Write an SQL query that reports the products that were only sold in the first quarter of 2019. That is,between 2019-01-01 and 2019-03-31 inclusive.
+create table product(
+  product_id int,
+  product_name varchar,
+  unit_price int,
+  PRIMARY KEY (product_id)
+  );
+
+insert into product values(1,'S8',1000);
+insert into product values(2,'G4',800);
+insert into product values(3,'iphone',1400);
+
+create table sales(
+  seller_id int,
+  product_id int,
+  buyer_id int,
+  sale_date date,
+  quantity int,
+  price int,
+  FOREIGN KEY (product_id) REFERENCES product(product_id)
+  );
+
+insert into Sales values(1,1,1,'2019-01-21',2,2000);
+insert into Sales values(1,2,2,'2019-02-17',1,800);
+insert into Sales values(2,2,3,'2019-06-02',1,800);
+insert into Sales values(3,3,4,'2019-05-13',2,2800);
+
+ans)
+1)select product_id,product_name
+from product
+where product_id not in (select product_id
+                        from sales
+                        where sale_date not between '2019-01-01' and '2019-03-31');
+2)select p.product_id, p.product_name
+from Product p
+left join Sales s
+on p.product_id = s.product_id
+group by p.product_id
+having sum(s.sale_date between '2019-01-01' and '2019-03-31') = count(s.sale_date);
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q18)Note that equal author_id and viewer_id indicate the same person.
+Write an SQL query to find all the authors that viewed at least one of their own articles.
+Return the result table sorted by id in ascending order.
+The query result format is in the following example.
+
+create table views(
+  article_id int,
+  author_id int,
+  viewer_id int,
+  view_date date
+  );
+insert into Views values(1, 3, 5, '2019-08-01');
+insert into Views values(1, 3, 6, '2019-08-02');
+insert into Views values(2, 7, 7, '2019-08-01');
+insert into Views values(2, 7, 6, '2019-08-02');
+insert into Views values(4, 7, 1, '2019-07-22');
+insert into Views values(3, 4, 4, '2019-07-21');
+insert into Views values(3, 4, 4, '2019-07-21');
+
+ans)select distinct author_id as id from views where author_id=viewer_id order by id;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q19)The table holds information about food delivery to customers that make orders at some date and
+specify a preferred delivery date (on the same order date or after it).
+If the customer's preferred delivery date is the same as the order date, then the order is called
+immediately; otherwise, it is called scheduled.
+Write an SQL query to find the percentage of immediate orders in the table, rounded to 2 decimal
+places.
+
+create table Delivery(
+  delivery_id int,
+  customer_id int,
+  order_date date,
+  customer_pref_delivery_date date,
+  primary key('delivery_id')
+  );
+
+insert into Delivery values(1, 1, '2019-08-01', '2019-08-02');
+insert into Delivery values(2, 5, '2019-08-02', '2019-08-02');
+insert into Delivery values(3, 1, '2019-08-11', '2019-08-11');
+insert into Delivery values(4, 3, '2019-08-24', '2019-08-26');
+insert into Delivery values(5, 4, '2019-08-21', '2019-08-22');
+insert into Delivery values(6, 2, '2019-08-11', '2019-08-13');
+
+ans)select round(sum(order_date=customer_pref_delivery_date)/count(1)*100) as immediate_percentage from delivery; (Not working)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q20)A company is running Ads and wants to calculate the performance of each Ad.
+Performance of the Ad is measured using Click-Through Rate (CTR) where:
+Write an SQL query to find the ctr of each Ad. Round ctr to two decimal points.
+Return the result table ordered by ctr in descending order and by ad_id in ascending order in case of a
+tie.
+Explanation:
+for ad_id = 1, ctr = (2/(2+1)) * 100 = 66.67
+for ad_id = 2, ctr = (1/(1+2)) * 100 = 33.33
+for ad_id = 3, ctr = (1/(1+1)) * 100 = 50.00
+for ad_id = 5, ctr = 0.00, Note that ad_id = 5 has no clicks or views.
+Note that we do not care about Ignored Ads.
+
+create table ads(
+  ad_id int,
+  user_id int,
+  action enum,
+  primary key('ad_id','user_id')
+  );
+
+insert into ads values(');
+insert into ads values(1, 1, 'Clicked');
+insert into ads values(2, 2, 'Clicked');
+insert into ads values(3, 3, 'Viewed');
+insert into ads values(5, 5, 'Ignored');
+insert into ads values(1, 7, 'Ignored');
+insert into ads values(2, 7, 'Viewed');
+insert into ads values(3, 5, 'Clicked');
+insert into ads values(1, 4, 'Viewed');
+insert into ads values(2, 11, 'Viewed');
+insert into ads values(1, 2, 'Clicked');
+
+ans)select ad_id,
+ifnull(
+    round(
+        avg(
+            case
+                when action = "Clicked" then 1
+                when action = "Viewed" then 0
+                else null
+            end
+        ) * 100,
+    2),
+0)
+as ctr
+from Ads
+group by ad_id
+order by ctr desc, ad_id asc;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q21)Write an SQL query to find the team size of each of the employees. Return result table in any order.
+
+create table Employee(
+  employee_id int,
+  team_id int,
+  primary key('employee_id')
+  );
+
+insert into Employee values(');
+insert into Employee values(1, 8);
+insert into Employee values(2, 8);
+insert into Employee values(3, 8);
+insert into Employee values(4, 7);
+insert into Employee values(5, 9);
+insert into Employee values(6, 9);
+
+ans)select e.employee_id, (select count(team_id) from Employee where e.team_id = team_id) as team_size from Employee e;
+SELECT employee_id, COUNT(team_id) OVER (PARTITION BY team_id) team_sizeFROM Employee order by employee_id;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q22)Write an SQL query to find the type of weather in each country for November 2019.
+The type of weather is:
+● Cold if the average weather_state is less than or equal 15,
+● Hot if the average weather_state is greater than or equal to 25, and
+● Warm otherwise.
+
+create table countries(
+  country_id int,
+  country_name varchar,
+  primary key('country_id')
+  );
+
+insert into countries values(2, 'USA');
+insert into countries values(3, 'Australia');
+insert into countries values(7, 'Peru');
+insert into countries values(5, 'China');
+insert into countries values(8, 'Morocco');
+insert into countries values(9, 'Spain');
+
+create table weather(
+  country_id int,
+  weather_state int,
+  day date,
+  primary key('country_id','day')
+  );
+
+insert into weather values(2, 15, '2019-11-01');
+insert into weather values(2, 12, '2019-10-28');
+insert into weather values(2, 12, '2019-10-27');
+insert into weather values(3, -2, '2019-11-10');
+insert into weather values(3, 0, '2019-11-11');
+insert into weather values(3, 3, '2019-11-12');
+insert into weather values(5, 16, '2019-11-07');
+insert into weather values(5, 18, '2019-11-09');
+insert into weather values(5, 21, '2019-11-23');
+insert into weather values(7, 25, '2019-11-28');
+insert into weather values(7, 22, '2019-12-01');
+insert into weather values(7, 20, '2019-12-02');
+insert into weather values(8, 25, '2019-11-05');
+insert into weather values(8, 27, '2019-11-15');
+insert into weather values(8, 31, '2019-11-25');
+insert into weather values(9, 7, '2019-10-23');
+insert into weather values(9, 3, '2019-12-23');
+
+ans)SELECT c.country_name,
+       CASE
+           WHEN AVG(w.weather_state * 1.0) <= 15.0 THEN 'Cold'
+           WHEN AVG(w.weather_state * 1.0) >= 25.0 THEN 'Hot'
+           ELSE 'Warm'
+       END AS weather_type
+FROM Countries AS c
+INNER JOIN Weather AS w ON c.country_id = w.country_id
+WHERE w.day BETWEEN '2019-11-01' AND '2019-11-30'
+GROUP BY c.country_id;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q23)
+
