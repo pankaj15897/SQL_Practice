@@ -885,3 +885,265 @@ from Sales a
 left join Sales b 
 on a.sale_date = b.sale_date
 where a.fruit = 'apples' and b.fruit = 'oranges';
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q43)Write an SQL query to report the fraction of players that logged in again on the day after the day they first logged in, rounded to 2 decimal places. In other words, you need to count the number of players
+that logged in for at least two consecutive days starting from their first login date, then divide that number by the total number of players.
+
+
+create table activity(
+  player_id int,
+  device_id int,
+  event_date date,
+  games_played int,
+  primary key('player_id','event_date')
+  );
+
+insert into activity values(1, 2, '2016-03-01', 5);
+insert into activity values(1, 2, '2016-03-02', 6);
+insert into activity values(2, 3, '2017-06-25', 1);
+insert into activity values(3, 1, '2016-03-02', 0);
+insert into activity values(3, 4, '2018-07-03', 5);
+
+ans)WITH cte AS (
+SELECT player_id, MIN(event_date) as first_login
+FROM Activity
+GROUP BY player_id
+)
+
+SELECT ROUND(SUM(CASE WHEN DATEDIFF(event_date, first_login)=1 THEN 1 ELSE 0  END) / COUNT(DISTINCT cte.player_id), 2) as fraction
+FROM Activity as a
+JOIN cte 
+ON a.player_id = cte.player_id
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q44)Write an SQL query to report the managers with at least five direct reports.Return the result table in any order.
+
+create table employee(
+  id int,
+  name varchar,
+  department varchar,
+  managerId int,
+  primary key('id')
+  );
+
+insert into employee values(101, 'John', 'A', 'None');
+insert into employee values(102, 'Dan', 'A', 101);
+insert into employee values(103, 'James', 'A', 101);
+insert into employee values(104, 'Amy', 'A', 101);
+insert into employee values(105, 'Anne', 'A', 101);
+insert into employee values(106, 'Ron', 'B', 101);
+
+ans)select Name from Employee
+where Id in
+(
+  select ManagerId from Employee
+  group by 1
+  having count(*) >= 5
+);
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q45)Write an SQL query to report the respective department name and number of students majoring in each department for all departments in the Department table (even ones with no current students).
+Return the result table ordered by student_number in descending order. In case of a tie, order them by dept_name alphabetically.
+
+
+create table students(
+  student_id int,
+  student_name varchar,
+  gender varchar,
+  dept_id int,
+  primary key('student_id'),
+  foreign key('dept_id') references department('dept_id')
+  );
+
+insert into students values(1, 'Jack', 'M', 1);
+insert into students values(2, 'Jane', 'F', 1);
+insert into students values(3, 'Mark', 'M', 2);
+
+create table department(
+  dept_id int,
+  dept_name varchar,
+  primary key('dept_id')
+  );
+
+insert into department values(1, 'Engineering');
+insert into department values(2, 'Science');
+insert into department values(3, 'Law');
+
+ans)select d.dept_name,ifnull(Count(student_id),0) as student_number
+from department d
+left join students s
+on d.dept_id=s.dept_id
+group by s.dept_id
+order by student_number desc,dept_name;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q46)Write an SQL query to report the customer ids from the Customer table that bought all the products in the Product table
+
+create table customer(
+  customer_id int,
+  product_key int,
+  foreign key('product_key') references product('product_key')
+  );
+
+insert into customer values(1, 5);
+insert into customer values(2, 6);
+insert into customer values(3, 5);
+insert into customer values(3, 6);
+insert into customer values(1, 6);
+
+create table product(
+  product_key int,
+  primary key('product_key')
+  );
+
+insert into product values(5);
+insert into product values(6);
+
+ans)SELECT customer_id
+FROM   customer
+GROUP  BY customer_id
+HAVING Count(DISTINCT product_key) = (SELECT Count(DISTINCT product_key) AS totl_prdct FROM   product);
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q47)Write an SQL query that reports the most experienced employees in each project. In case of a tie,report all employees with the maximum number of experience years.
+
+
+create table project(
+  project_id int,
+  employee_id int,
+  primary key('project_id','employee_id')
+  foreign key('employee_id') references employee('employee_id')
+  );
+
+insert into project values(1, 1);
+insert into project values(1, 2);
+insert into project values(1, 3);
+insert into project values(2, 1);
+insert into project values(2, 4);
+
+
+create table employee(
+  employee_id int,
+  name varchar,
+  experience_years int,
+  primary key('employee_id')
+  );
+
+insert into employee values(1, 'Khaled', 3);
+insert into employee values(2, 'Ali', 2);
+insert into employee values(3, 'John', 3);
+insert into employee values(4, 'Doe', 2);
+
+ans)1)select project_id, employee_id
+from Project
+join Employee
+using (employee_id)
+where (project_id, experience_years) in (
+    select project_id, max(experience_years)
+    from Project
+    join Employee
+    using (employee_id)
+    group by project_id);
+
+2)SELECT
+    project_id,
+    employee_id
+FROM (
+    SELECT
+        p.project_id,
+        p.employee_id,
+        DENSE_RANK() OVER(PARTITION BY p.project_id ORDER BY e.experience_years DESC) 
+        as maxexp
+    FROM project as p JOIN employee as e
+    ON p.employee_id = e.employee_id
+    ) 
+WHERE maxexp = 1;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q49)Write a SQL query to find the highest grade with its corresponding course for each student. In case of a tie, you should find the course with the smallest course_id.
+Return the result table ordered by student_id in ascending order.
+
+create table enrollments(
+  student_id int,
+  course_id int,
+  grade int,
+  primary key('student_id','course_id')
+  );
+
+insert into enrollments values(2, 2, 95);
+insert into enrollments values(2, 3, 95);
+insert into enrollments values(1, 1, 90);
+insert into enrollments values(1, 2, 99);
+insert into enrollments values(3, 1, 80);
+insert into enrollments values(3, 2, 75);
+insert into enrollments values(3, 3, 82);
+
+ans)select student_id, min(course_id) as course_id, grade
+from Enrollments
+where (student_id, grade) in 
+    (select student_id, max(grade)
+    from Enrollments
+    group by student_id)
+group by student_id
+order by student_id asc;
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q50)The winner in each group is the player who scored the maximum total points within the group. In the case of a tie, the lowest player_id wins.
+Write a solution to find the winner in each group.Return the result table in any order.
+
+create table players(
+  player_id int,
+  group_id int,
+  primary key('player_id')
+  );
+
+insert into players values(15,1);
+insert into players values(25,1);
+insert into players values(30,1);
+insert into players values(45,1);
+insert into players values(10,2);
+insert into players values(35,2);
+insert into players values(50,2);
+insert into players values(20,3);
+insert into players values(40,3);
+
+create table matches(
+  match_id  int,
+  first_player  int,
+  second_player  int,
+  first_score  int,
+  second_score  int,
+  primary key('match_id')
+  );
+
+insert into matches values(1,15,45,3,0);
+insert into matches values(2,30,25,1,2);
+insert into matches values(3,30,15,2,0);
+insert into matches values(4,40,20,5,2);
+insert into matches values(5,35,50,1,1);
+
+ans)
+WITH
+    s AS (
+        SELECT first_player AS player_id, first_score AS score, group_id
+        FROM
+            Matches AS m
+            JOIN Players AS p ON m.first_player = p.player_id
+        UNION ALL
+        SELECT second_player AS player_id, second_score AS score, group_id
+        FROM
+            Matches AS m
+            JOIN Players AS p ON m.second_player = p.player_id
+    ),
+    t AS (
+        SELECT group_id, player_id, SUM(score) AS scores
+        FROM s
+        GROUP BY player_id
+    ),
+    p AS (
+        SELECT
+            group_id,
+            player_id,
+            RANK() OVER (
+                PARTITION BY group_id
+                ORDER BY scores DESC, player_id
+            ) AS rk
+        FROM t
+    )
+SELECT group_id, player_id
+FROM p
+WHERE rk = 1;
